@@ -16,16 +16,22 @@ import imagen from "./assets/imagenes";
 
 //clase principal
 class App extends React.Component{
+  //contructor base
   constructor(props){
     super(props);
+    var meses=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+    var today = new Date(),
+        date =   today.getDate()+ '-' + meses[today.getMonth()] + '-' + today.getFullYear();
     this.state = {
       item:[],
       itemByRating: [],
       itemByMeta: [],
       AlertShow:false,
+      FechaActual:date
     };
   }
 
+  //function de carga de Peliculas
   loadData(){
     var self = this;
     axios({
@@ -35,26 +41,33 @@ class App extends React.Component{
       responseType: "json",
     })
       .then(function (response) {
+        //oculta la alerta si esta en pantalla
         self.setState({ AlertShow: false });
+        //guarda data obtenida
         self.setState({item:response.data});
+        //reoordena la data por "rating" y crea nuevo objeto
         var a = self.state.item.response.sort(function (a, b) {
           var x = a["rating"],
               y = b["rating"];
           return ((x > y) ? -1 : ((x < y) ? 1 : 0));
         });
+        //guarda la data ordenada
         self.setState({itemByRating:a});
+        //si el status de la peticion es 200
         if(response.status===200){
+          //crea arreglo de peliculas
           var peliculas=[];
+          //ordena la data previamente procesada, ahora por "metascore" y crea nuevo objeto
           var b = self.state.itemByRating.sort(function (a, b) {
             var x = a["metascore"],
                 y = b["metascore"];
             return ((x > y) ? -1 : ((x < y) ? 1 : 0));
           });
+          //busca los titulos y los guarda de arreglo
           b.forEach(function(valor){
             peliculas.push(valor.title);
           })
-          console.log(b);
-          console.log(peliculas);
+          //envia datos de rut y peliculas
           axios({
             method: "post",
             url:"https://prod-62.westus.logic.azure.com:443/workflows/779069c026094a32bb8a18428b086b2c/triggers/manual/paths/invoke?api-version=2016-06-01&sp=%2Ftriggers%2Fmanual%2Frun&sv=1.0&sig=o_zIF50Dd_EpozYSPSZ6cWB5BRQc3iERfgS0m-4gXUo" ,
@@ -65,6 +78,7 @@ class App extends React.Component{
               "Peliculas":peliculas
             }
           }).then(function(nResponse){
+            //en consola, muestra el status de la peticion
             console.log("Status Enviado: "+nResponse.status)
           })
         }
@@ -77,22 +91,32 @@ class App extends React.Component{
   }
 
   clearList(){
+    //limpia el listado de peliculas dejandolo vacio
     this.setState({itemByRating:[]});
   }
 
 
   render(){
+    //estilos de boton "limpiar"
     const buttonclean={
       float:'right'
     }
     return (
       <React.Fragment>
-        <Navbar bg="dark" variant="dark">
+        <Navbar sticky={'top'} bg="dark" variant="dark">
           <Navbar.Brand>Prueba para Envision</Navbar.Brand>
           <Navbar.Toggle />
           <Navbar.Collapse className="justify-content-end">
             <Navbar.Text>
               Creado por: <a>Bayron Ramírez Parada</a>
+            </Navbar.Text>
+          </Navbar.Collapse>
+        </Navbar>
+        <Navbar fixed={'bottom'} bg="dark" variant="dark">
+          <Navbar.Toggle />
+          <Navbar.Collapse className="justify-content-end">
+            <Navbar.Text>
+              Hoy es: <a>{this.state.FechaActual}</a>
             </Navbar.Text>
           </Navbar.Collapse>
         </Navbar>
@@ -135,7 +159,7 @@ class App extends React.Component{
     );
   }
 }
-
+//funcion que carga las cartas de las peliculas
 function Pelicula(props) {
   const [data, setData] = useState(props.data);
   const [index, setIndex] = useState(props.index);
@@ -175,17 +199,24 @@ function Pelicula(props) {
 
   </animated.div>
 }
-
+//funcion que carga la seccion de Titulo
 function Titulo(){
+  const styles = useSpring({
+    to: { opacity: 1,x:0 },
+    from: { opacity: 0,x:500 },
+  });
+
   return(
       <Jumbotron>
-        <h1>Prueba Técnica Envision</h1>
-        <p>
-          Prueba realizada por Bayron Ramírez Parada, para Envision.
-        </p>
-        <p>
-          <a href="https://github.com/Baldraxx/" target={"_blank"}>Ver mas...</a>
-        </p>
+        <animated.div style={styles}>
+          <h1>Prueba Técnica Envision</h1>
+          <p>
+            Prueba realizada por Bayron Ramírez Parada, para Envision.
+          </p>
+          <Button variant="primary" href="https://github.com/Baldraxx/Prueba-envision" target={"_blank"}>
+            Ver mas...
+          </Button>
+        </animated.div>
       </Jumbotron>
   )
 }
