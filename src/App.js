@@ -193,7 +193,7 @@ function Pelicula(props) {
         </Card.Text>
       </Card.Body>
       <Card.Footer>
-        <small className="text-muted">Metascore: {data.metascore}</small>
+        <small className="text-muted"><b>Metascore:</b> {data.metascore} & <b>Rating:</b> {data.rating}</small>
       </Card.Footer>
     </Card>
 
