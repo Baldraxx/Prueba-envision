@@ -141,7 +141,7 @@ class App extends React.Component{
                   <br/><br/>
                   <Row>
                   {this.state.itemByRating.map((i,index) => (
-                      <Col xs={3} md={3} sm={6} xl={3}>
+                      <Col xl={3} xs={12} md={6} sm={6} >
                         <Pelicula data={i} index={index+1} />
                       </Col>
                   ))}
